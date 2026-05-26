@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<title>Acceso | Consultorio Dental</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+margin:0;
+background:#f4f8fb;
+}
+
+header{
+background:#0077b6;
+color:white;
+padding:20px;
+text-align:center;
+}
+
+nav{
+background:#023e8a;
+padding:15px;
+text-align:center;
+}
+
+nav a{
+color:white;
+margin:15px;
+text-decoration:none;
+font-weight:bold;
+font-size:20px;
+}
+
+nav a:hover{
+color:#90e0ef;
+}
+
+section{
+background:white;
+margin:20px;
+padding:30px;
+border-radius:10px;
+}
+
+h2{
+color:#0077b6;
+}
+
+input,
+select{
+padding:10px;
+margin:5px;
+width:270px;
+}
+
+button{
+padding:10px;
+background:#0077b6;
+color:white;
+border:none;
+cursor:pointer;
+border-radius:5px;
+}
+
+button:hover{
+background:#023e8a;
+}
+
+footer{
+background:#023e8a;
+color:white;
+text-align:center;
+padding:15px;
+margin-top:20px;
+}
+
+.oculto{
+display:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+<h1>Consultorio Dental Sonrisa Sana</h1>
+<p>Cuidamos tu salud bucal con atención personalizada</p>
+</header>
+
+<nav>
+<a href="index.html">Inicio</a>
+<a href="servicios.html">Servicios</a>
+<a href="contacto.html">Contacto</a>
+<a href="acceso.html">Acceso</a>
+<a href="dashboards.html">Dashboards</a>
+</nav>
+
+<!-- LOGIN -->
+
+<section style="text-align:center;">
+
+<h2>Acceso de usuarios</h2>
+
+<input type="email"
+id="email"
+placeholder="Correo">
+
+<br>
+
+<input type="password"
+id="password"
+placeholder="Contraseña">
+
+<br><br>
+
+<button onclick="registrar()">
+Registrarse
+</button>
+
+<button onclick="login()">
+Iniciar sesión
+</button>
+
+<button onclick="logout()">
+Cerrar sesión
+</button>
+
+<p id="estado"></p>
+
+</section>
+
+<!-- ZONA PRIVADA -->
+
+<section id="zonaPrivada"
+class="oculto"
+style="text-align:center;">
+
+<h2>📅 Agendar cita dental</h2>
+
+<input type="text"
+id="nombre"
+placeholder="Nombre completo">
+
+<br><br>
+
+<!-- SERVICIOS -->
+
+<select id="servicio">
+
+<option value="Limpieza Dental|500">
+Limpieza Dental - $500
+</option>
+
+<option value="Extracción Simple|700">
+Extracción Simple - $700
+</option>
+
+<option value="Extracción Complicada|1200">
+Extracción Complicada - $1200
+</option>
+
+<option value="Extracción de Muela del Juicio|1500">
+Extracción de Muela del Juicio - $1500
+</option>
+
+<option value="Blanqueamiento Dental|1800">
+Blanqueamiento Dental - $1800
+</option>
+
+<option value="Ortodoncia|3500">
+Ortodoncia - $3500
+</option>
+
+<option value="Diseño de Sonrisa|4000">
+Diseño de Sonrisa - $4000
+</option>
+
+<option value="Endodoncia|2500">
+Endodoncia - $2500
+</option>
+
+<option value="Implante Dental|6000">
+Implante Dental - $6000
+</option>
+
+<option value="Tratamiento de Caries|900">
+Tratamiento de Caries - $900
+</option>
+
+</select>
+
+<br><br>
+
+<!-- DOCTORES -->
+
+<select id="doctor">
+
+<option>
+Dr. José Och - Ortodoncia
+</option>
+
+<option>
+Dr. Damián Yam - Cirugía Dental
+</option>
+
+<option>
+Dr. Angel Grabiel - Estética Dental
+</option>
+
+<option>
+Dr. Brayan Canche - Endodoncia
+</option>
+
+</select>
+
+<br><br>
+
+<!-- HORARIOS -->
+
+<select id="hora">
+
+<option>09:00 AM</option>
+<option>10:00 AM</option>
+<option>11:00 AM</option>
+<option>12:00 PM</option>
+<option>01:00 PM</option>
+<option>02:00 PM</option>
+<option>03:00 PM</option>
+<option>04:00 PM</option>
+<option>05:00 PM</option>
+<option>06:00 PM</option>
+
+</select>
+
+<br><br>
+
+<input type="date"
+id="fecha">
+
+<br><br>
+
+<button onclick="guardarCita()">
+Agendar cita
+</button>
+
+</section>
+
+<!-- CITAS -->
+
+<section>
+
+<h2>Citas registradas</h2>
+
+<div id="listaCitas"></div>
+
+</section>
+
+<footer>
+<p>© 2026 Consultorio Dental Sonrisa Sana</p>
+</footer>
+
+<!-- FIREBASE -->
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCMEOUb7zMdksUhimG1V2-noVt8pzcLn6I",
+  authDomain: "consultorio-medico-9afd4.firebaseapp.com",
+  projectId: "consultorio-medico-9afd4",
+  storageBucket: "consultorio-medico-9afd4.firebasestorage.app",
+  messagingSenderId: "894643930927",
+  appId: "1:894643930927:web:91f008a5c8be4dcdecc3da",
+  measurementId: "G-Y354TGY38V"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+
+const db = firebase.firestore();
+
+
+// CONTROL DE SESIÓN
+
+auth.onAuthStateChanged(user => {
+
+if(user){
+
+document.getElementById("zonaPrivada")
+.classList.remove("oculto");
+
+document.getElementById("estado")
+.innerText =
+"Sesión iniciada: " + user.email;
+
+cargarCitas();
+
+}else{
+
+document.getElementById("zonaPrivada")
+.classList.add("oculto");
+
+document.getElementById("estado")
+.innerText =
+"No has iniciado sesión";
+
+}
+
+});
+
+
+// REGISTRO
+
+function registrar(){
+
+let email =
+document.getElementById("email").value;
+
+let password =
+document.getElementById("password").value;
+
+auth.createUserWithEmailAndPassword(email, password)
+
+.then(() => {
+
+alert("Usuario registrado");
+
+})
+
+.catch(e => alert(e.message));
+
+}
+
+
+// LOGIN
+
+function login(){
+
+let email =
+document.getElementById("email").value;
+
+let password =
+document.getElementById("password").value;
+
+auth.signInWithEmailAndPassword(email, password)
+
+.then(() => {
+
+alert("Bienvenido");
+
+})
+
+.catch(() => {
+
+alert("Error en login");
+
+});
+
+}
+
+
+// LOGOUT
+
+function logout(){
+
+auth.signOut();
+
+}
+
+
+// GUARDAR CITA
+
+function guardarCita(){
+
+let nombre =
+document.getElementById("nombre").value;
+
+let servicioCompleto =
+document.getElementById("servicio").value;
+
+let partes =
+servicioCompleto.split("|");
+
+let servicio = partes[0];
+
+let precio = partes[1];
+
+let doctor =
+document.getElementById("doctor").value;
+
+let hora =
+document.getElementById("hora").value;
+
+let fecha =
+document.getElementById("fecha").value;
+
+db.collection("citas").add({
+
+nombre,
+servicio,
+precio,
+doctor,
+hora,
+fecha,
+
+estado:"Pendiente",
+
+usuario: auth.currentUser.email,
+
+fechaRegistro: new Date()
+
+});
+
+alert("Cita registrada");
+
+cargarCitas();
+
+}
+
+
+// CARGAR CITAS
+
+function cargarCitas(){
+
+let usuarioActual =
+auth.currentUser.email;
+
+db.collection("citas")
+
+.where("usuario","==",usuarioActual)
+
+.get()
+
+.then(snapshot => {
+
+let lista =
+document.getElementById("listaCitas");
+
+lista.innerHTML = "";
+
+if(snapshot.empty){
+
+lista.innerHTML =
+"<p>No tienes citas registradas.</p>";
+
+}
+
+snapshot.forEach(doc => {
+
+let d = doc.data();
+
+lista.innerHTML += `
+
+<div style="
+border:1px solid #ccc;
+padding:15px;
+margin:10px;
+border-radius:10px;
+background:#f9f9f9;
+">
+
+<p><b>👤 Paciente:</b> ${d.nombre}</p>
+
+<p><b>🦷 Servicio:</b> ${d.servicio}</p>
+
+<p><b>💰 Precio:</b> $${d.precio} MXN</p>
+
+<p><b>👨‍⚕️ Doctor:</b> ${d.doctor}</p>
+
+<p><b>📅 Fecha:</b> ${d.fecha}</p>
+
+<p><b>⏰ Hora:</b> ${d.hora}</p>
+
+<p><b>📌 Estado:</b> ${d.estado}</p>
+
+${d.estado !== "Cancelada"
+
+? `<button onclick="cancelarCita('${doc.id}')">
+
+❌ Cancelar cita
+
+</button>`
+
+: `<p style="color:red;font-weight:bold;">
+
+❌ Esta cita fue cancelada
+
+</p>`
+}
+
+</div>
+
+`;
+
+});
+
+});
+
+}
+
+
+// CANCELAR CITA
+
+function cancelarCita(idCita){
+
+db.collection("citas")
+.doc(idCita)
+.update({
+
+estado:"Cancelada"
+
+})
+
+.then(() => {
+
+alert("Cita cancelada");
+
+cargarCitas();
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
