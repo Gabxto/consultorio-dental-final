@@ -260,6 +260,24 @@ Agendar cita
 
 </section>
 
+<section style="text-align:center;">
+
+<h2>🌤 Clima actual</h2>
+
+<div id="widget-clima"
+style="
+padding:15px;
+margin:20px auto;
+max-width:500px;
+border-radius:10px;
+background:#e6f4ff;
+border:1px solid #0077b6;
+">
+Cargando clima...
+</div>
+
+</section>
+
 <footer>
 <p>© 2026 Consultorio Dental Sonrisa Sana</p>
 </footer>
@@ -530,6 +548,95 @@ cargarCitas();
 
 }
 
+// =========================
+// API DEL CLIMA
+// =========================
+
+async function cargarClima() {
+
+const ciudad = "Valladolid, Yucatán";
+const apiKey = "32816e706da10bd36bef2a65576473f7";
+
+const url =
+`https://api.openweathermap.org/data/2.5/weather?q=${ciudad}&appid=${apiKey}&units=metric&lang=es`;
+
+try {
+
+const respuesta = await fetch(url);
+
+if(!respuesta.ok){
+throw new Error("Error al obtener clima");
+}
+
+const datos = await respuesta.json();
+
+const temperatura =
+Math.round(datos.main.temp);
+
+const descripcion =
+datos.weather[0].description;
+
+let recomendacion = "";
+
+if(temperatura > 30){
+
+recomendacion =
+"☀️ Hace mucho calor. Mantente hidratado antes y después de tu cita dental.";
+
+}
+else if(temperatura < 20){
+
+recomendacion =
+"❄️ Si tienes sensibilidad dental evita bebidas muy frías.";
+
+}
+else{
+
+recomendacion =
+"😊 Excelente clima para asistir a tu consulta dental.";
+
+}
+
+document.getElementById("widget-clima")
+.innerHTML = `
+
+<strong>Clima actual en ${ciudad}</strong>
+
+<br><br>
+
+🌡️ ${temperatura}°C
+
+<br>
+
+☁️ ${descripcion}
+
+<br><br>
+
+${recomendacion}
+
+`;
+
+}
+catch(error){
+
+console.error(error);
+
+document.getElementById("widget-clima")
+.innerHTML =
+"⚠️ No fue posible cargar el clima.";
+
+}
+
+}
+
+document.addEventListener(
+"DOMContentLoaded",
+() => {
+
+cargarClima();
+
+}
+);
 </script>
 
 </body>
